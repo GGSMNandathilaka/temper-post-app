@@ -1,1 +1,4 @@
-<app-post-card></app-post-card>
+<ng-container *ngFor="let post of postList.slice(0, POST_LIMIT)">
+  <app-post-card [postItem]="post"></app-post-card>
+</ng-container>
+
