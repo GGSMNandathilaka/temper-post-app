@@ -1,8 +1,11 @@
 <div class="p-5">
-  <div class="bg-white text-black w-full max-w-md flex flex-col rounded-xl shadow-lg p-4">
+  <div class="bg-white text-black w-full max-w-md flex flex-col rounded-xl shadow-2xl p-4">
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-4">
-        <div class="text-md font-bold">{{postItem?.id}} - {{postItem?.title}}</div>
+        <div class="flex justify-start items-center gap-5 text-lg font-semibold">
+          <div class="text-red-50 bg-red-400 py-1 px-3.5 rounded-full">{{postItem?.id}}</div>
+          <div>{{postItem?.title}}</div>
+        </div>
       </div>
       <div class="flex items-center space-x-4">
         <div class="text-gray-500 hover:text-gray-300 cursor-pointer">

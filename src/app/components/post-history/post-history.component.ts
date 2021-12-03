@@ -45,16 +45,20 @@ export class PostHistoryComponent implements OnInit, OnDestroy {
    * @param index
    */
   onHistoryRevoke(historyItem: HistoryItem, index: number) {
-    if (historyItem && !!index) {
+    if (historyItem) {
+
+      // re-set index; because history items has reversed in the UI
+      const newIndex = this.postService.historyItems.length - 1 - index;
+
       // revoke postList to previous history item's post list
-      if (this.postService.historyItems[index - 1]) {
+      if (this.postService.historyItems[newIndex - 1]) {
 
         const hItems = [...this.postService.historyItems];
 
         // remove history items which are latest items upto revoke point
-        this.postService.historyItems.splice(index - 1);
+        this.postService.historyItems.splice(newIndex - 1);
 
-        this.postService.setLatestHistoryItem(hItems[index - 1]);
+        this.postService.setLatestHistoryItem(hItems[newIndex - 1]);
       }
     }
   }
