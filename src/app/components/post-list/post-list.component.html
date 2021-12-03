@@ -1,4 +1,8 @@
-<ng-container *ngFor="let post of postList.slice(0, POST_LIMIT)">
-  <app-post-card [postItem]="post"></app-post-card>
+<ng-container *ngFor="let post of postList; let i = index">
+  <app-post-card
+    [postItem]="post"
+    [itemOrder]="i"
+    [postLimit]="postList.length"
+    (cardOrderChangeEmitter)="onCardOrderChange($event)"></app-post-card>
 </ng-container>
 

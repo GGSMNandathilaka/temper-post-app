@@ -1,1 +1,23 @@
-<p>post-history works!</p>
+<ul *ngFor="let historyItem of historyItems; let i = index">
+
+  <ng-container *ngIf="historyItem?.postList && historyItem.postList.length > 0">
+    <!--  initial state-->
+    <li
+      *ngIf="historyItem?.previous === -1 && historyItem?.current === -1; else historyElse">
+      <div>
+        <p>No changes happen</p>
+      </div>
+    </li>
+
+    <!--  when changes happen in the post order-->
+    <ng-template #historyElse>
+      <li>
+        <div>
+          <p>Moved post {{historyItem?.id}} from index {{historyItem?.previous}} to index {{historyItem?.current}}</p>
+          <button (click)="onHistoryRevoke(historyItem, i)">Time travel</button>
+        </div>
+      </li>
+    </ng-template>
+  </ng-container>
+
+</ul>

@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  endpointUrl: 'https://jsonplaceholder.typicode.com/posts'
+  endpointUrl: 'https://jsonplaceholder.typicode.com/posts',
+  replayLimit: 10000
 };
 
 /*
