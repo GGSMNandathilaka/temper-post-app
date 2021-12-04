@@ -56,39 +56,32 @@ describe('PostHistoryComponent', () => {
   ];
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [PostHistoryComponent],
+    TestBed.configureTestingModule({
       providers: [
-        {provide: HttpClient, useValue: httpClientSpy},
+        PostHistoryComponent,
         {
           provide: PostService,
-          useValue: createSpyFromClass(PostService,
-            {
-              methodsToSpyOn: ["getLatestHistoryItem", "retrievePosts", "setLatestHistoryItem"]
-            })
+          useValue: createSpyFromClass(PostService)
         },
       ]
-    })
-      .compileComponents();
+    });
   });
-
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PostHistoryComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    component = TestBed.inject<any>(PostHistoryComponent);
 
     postServiceSpy = TestBed.inject<any>(PostService);
-    ((<any>postServiceSpy)._postHistorySubject as BehaviorSubject<HistoryItem>) = new BehaviorSubject<HistoryItem>(new HistoryItem(-1, -1, -1, []));
-    (<any>postServiceSpy).getLatestHistoryItem.mockReturnValue(of());
 
+    // give mock implementation for the mandatory functions
+    const subj = new BehaviorSubject<HistoryItem>(new HistoryItem(-1, -1, -1, []));
+    postServiceSpy.getLatestHistoryItem.mockImplementation(() => subj.asObservable());
   });
 
-  it('should create', () => {
+  it('METHOD: Init', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('History Revoke', () => {
+  describe('METHOD: onHistoryRevoke', () => {
 
     beforeEach(() => {
       // set 2 post history items to historyItem list
@@ -120,6 +113,9 @@ describe('PostHistoryComponent', () => {
       expect(postServiceSpy.historyItems.length).toBe(1);
     });
 
+    it('should revoke history', () => {
+      component.onHistoryRevoke(historyItem, 1);
+      expect(postServiceSpy.historyItems).toHaveLength(2);
+    });
   });
-
 });
