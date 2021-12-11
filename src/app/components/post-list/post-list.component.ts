@@ -20,7 +20,19 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // retrieve posts from the API
-    this.postService.retrievePosts();
+    this.historySubscription.add(
+      this.postService.retrievePosts().subscribe(
+        (data: Post[]) => {
+
+          const historyItem: HistoryItem = new HistoryItem();
+          historyItem.id = -1;
+          historyItem.current = -1;
+          historyItem.previous = -1;
+          historyItem.postList = data;
+          this.postService.setLatestHistoryItemList([historyItem]);
+        }
+      )
+    )
 
     this.historySubscription.add(this.postService.getLatestHistoryItemList().subscribe((historyItems: HistoryItem[]) => {
         if (historyItems && historyItems.length > 0) {

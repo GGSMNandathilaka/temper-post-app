@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Post} from "../models/post";
-import {catchError} from "rxjs/operators";
+import {map} from "rxjs/operators";
 import {BehaviorSubject, Observable, of} from "rxjs";
 import {environment} from "../../environments/environment";
 import {HistoryItem} from "../models/history-item";
@@ -27,26 +27,13 @@ export class PostService {
    * Retrieve limited posts from the API
    * Publish limited posts to a Replay Subject to maintain history
    */
-  public retrievePosts() {
-    this.http.get<Post[]>(this.endpointUrl)
-      .subscribe(
-        (data: Post[]) => {
-
-          const historyItem: HistoryItem = new HistoryItem();
-          historyItem.id = -1;
-          historyItem.current = -1;
-          historyItem.previous = -1;
-          historyItem.postList = [];
-
-          if (data && data.length > 0) {
-            // initial data loading to history stack
-            historyItem.postList = data.splice(0, this.POST_LIMIT);
-          }
-
-          this._postHistoryListSubject.next([historyItem]);
-        },
-        catchError(this.handleError('retrievePosts', []))
+  public retrievePosts(): Observable<Post[]> {
+    return this.http.get<Post[]>(this.endpointUrl).pipe(
+      map(
+        data => data.splice(0,this.POST_LIMIT),
+        this.handleError('retrievePosts', [])
       )
+    );
   }
 
   public getLatestHistoryItemList(): Observable<HistoryItem[]> {
