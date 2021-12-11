@@ -1,4 +1,4 @@
-import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 
 import {PostHistoryComponent} from './post-history.component';
 import {PostService} from "../../services/post.service";
@@ -8,47 +8,191 @@ import {createSpyFromClass, Spy} from "jest-auto-spies";
 
 describe('PostHistoryComponent', () => {
   let component: PostHistoryComponent;
-  let fixture: ComponentFixture<PostHistoryComponent>;
   let postServiceSpy: Spy<PostService>;
-  let httpClientSpy: { get: jest.Mock };
-  httpClientSpy = {get: jest.fn()};
 
-  const testHistoryData: HistoryItem[] = [
+  let historyItems: HistoryItem[] = [
     {
-      id: 2,
-      previous: 1,
-      current: 0,
+      id: 5,
+      current: 3,
+      previous: 4,
       postList: [
         {
-          userId: 1,
+          body: 'test',
           id: 2,
-          title: "test2",
-          body: "test2"
+          title: 'test',
+          userId: 1
         },
         {
-          userId: 1,
+          body: 'test',
+          id: 3,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 4,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 5,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
           id: 1,
-          title: "test1",
-          body: "test1"
+          title: 'test',
+          userId: 1
+        }
+      ]
+    },
+    {
+      id: 4,
+      current: 2,
+      previous: 3,
+      postList: [
+        {
+          body: 'test',
+          id: 2,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 3,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 4,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 1,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 5,
+          title: 'test',
+          userId: 1
         }
       ]
     },
     {
       id: 3,
-      previous: 2,
       current: 1,
+      previous: 2,
       postList: [
         {
-          userId: 1,
-          id: 3,
-          title: "test3",
-          body: "test3"
+          body: 'test',
+          id: 2,
+          title: 'test',
+          userId: 1
         },
         {
-          userId: 1,
+          body: 'test',
+          id: 3,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
           id: 1,
-          title: "test1",
-          body: "test1"
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 4,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 5,
+          title: 'test',
+          userId: 1
+        }
+      ]
+    },
+    {
+      id: 1,
+      current: 1,
+      previous: 0,
+      postList: [
+        {
+          body: 'test',
+          id: 2,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 1,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 3,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 4,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 5,
+          title: 'test',
+          userId: 1
+        }
+      ]
+    },
+    {
+      id: -1,
+      current: -1,
+      previous: -1,
+      postList: [
+        {
+          body: 'test',
+          id: 1,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 2,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 3,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 4,
+          title: 'test',
+          userId: 1
+        },
+        {
+          body: 'test',
+          id: 5,
+          title: 'test',
+          userId: 1
         }
       ]
     }
@@ -72,8 +216,8 @@ describe('PostHistoryComponent', () => {
     postServiceSpy = TestBed.inject<any>(PostService);
 
     // give mock implementation for the mandatory functions
-    const subj = new BehaviorSubject<HistoryItem>(new HistoryItem(-1, -1, -1, []));
-    postServiceSpy.getLatestHistoryItem.mockImplementation(() => subj.asObservable());
+    const subj = new BehaviorSubject<HistoryItem[]>(historyItems);
+    postServiceSpy.getLatestHistoryItemList.mockImplementation(() => subj.asObservable());
   });
 
   it('METHOD: Init', () => {
@@ -82,39 +226,93 @@ describe('PostHistoryComponent', () => {
 
   describe('METHOD: onHistoryRevoke', () => {
 
-    let historyItem: HistoryItem = {
-      id: 3,
-      previous: 2,
-      current: 1,
-      postList: [
-        {
-          userId: 1,
-          id: 3,
-          title: "test3",
-          body: "test3"
-        },
-        {
-          userId: 1,
-          id: 1,
-          title: "test1",
-          body: "test1"
-        }
-      ]
-    };
-
     beforeEach(() => {
-      // set 2 post history items to historyItem list
-      postServiceSpy.historyItems = testHistoryData;
+      component.historyItems = historyItems;
     });
 
     it('should revoke history', () => {
-      component.onHistoryRevoke(historyItem, 0);
-      expect(postServiceSpy.historyItems.length).toBe(0);
+
+      let revokedHistoryItem = {
+        id: 4,
+        current: 2,
+        previous: 3,
+        postList: [
+          {
+            body: 'test',
+            id: 2,
+            title: 'test',
+            userId: 1
+          },
+          {
+            body: 'test',
+            id: 3,
+            title: 'test',
+            userId: 1
+          },
+          {
+            body: 'test',
+            id: 4,
+            title: 'test',
+            userId: 1
+          },
+          {
+            body: 'test',
+            id: 1,
+            title: 'test',
+            userId: 1
+          },
+          {
+            body: 'test',
+            id: 5,
+            title: 'test',
+            userId: 1
+          }
+        ]
+      }
+      component.onHistoryRevoke(revokedHistoryItem, 1);
+
+      let expectedLatestHistoryItem = {
+        id: 3,
+        current: 1,
+        previous: 2,
+        postList: [
+          {
+            body: 'test',
+            id: 2,
+            title: 'test',
+            userId: 1
+          },
+          {
+            body: 'test',
+            id: 3,
+            title: 'test',
+            userId: 1
+          },
+          {
+            body: 'test',
+            id: 1,
+            title: 'test',
+            userId: 1
+          },
+          {
+            body: 'test',
+            id: 4,
+            title: 'test',
+            userId: 1
+          },
+          {
+            body: 'test',
+            id: 5,
+            title: 'test',
+            userId: 1
+          }
+        ]
+      };
+
+      postServiceSpy.getLatestHistoryItemList().subscribe(historyItems => {
+        expect(historyItems[0].id).toEqual(expectedLatestHistoryItem.id);
+      });
     });
 
-    it('should revoke history', () => {
-      component.onHistoryRevoke(historyItem, 1);
-      expect(postServiceSpy.historyItems).toHaveLength(0);
-    });
   });
 });

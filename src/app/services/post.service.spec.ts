@@ -1,58 +1,98 @@
-import {fakeAsync, TestBed} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 
 import {PostService} from './post.service';
-import {HttpClient} from "@angular/common/http";
-import {HttpClientTestingModule} from "@angular/common/http/testing";
-import {defer} from "rxjs";
+import {HttpClient, HttpClientModule} from "@angular/common/http";
+import {BehaviorSubject, of} from "rxjs";
 import {Post} from "../models/post";
 import {HistoryItem} from "../models/history-item";
+import {createSpyFromClass, Spy} from "jest-auto-spies";
 
 describe('PostService', () => {
-  let postService: PostService;
   let httpClientSpy: { get: jest.Mock };
   httpClientSpy = {get: jest.fn()};
+  let postServiceSpy: Spy<PostService>;
+
+  const dummyPosts: Post[] = [
+    {
+      userId: 1,
+      id: 1,
+      body: 'Http Client',
+      title: 'Testing Angular Service'
+    }, {
+      userId: 2,
+      id: 2,
+      body: 'Hello World2',
+      title: 'Testing Angular Services'
+    }, {
+      userId: 3,
+      id: 3,
+      body: 'Hello World3',
+      title: 'Testing Angular Services'
+    }, {
+      userId: 4,
+      id: 4,
+      body: 'Hello World4',
+      title: 'Testing Angular Services'
+    }, {
+      userId: 5,
+      id: 5,
+      body: 'Hello World5',
+      title: 'Testing Angular Services'
+    }, {
+      userId: 6,
+      id: 6,
+      body: 'Hello World6',
+      title: 'Testing Angular Services'
+    }];
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [HttpClientModule],
       providers: [
-        PostService,
-        {provide: HttpClient, useValue: httpClientSpy}
-      ]
-    });
-    postService = TestBed.inject(PostService);
-  });
-
-  it('should be created', () => {
-    expect(postService).toBeTruthy();
-  });
-
-  /*it('should be return posts', fakeAsync(() => {
-
-    const testHistoryItem: HistoryItem = {
-      id: 1,
-      previous: 0,
-      current: 1,
-      postList: [
+        {provide: HttpClient, useValue: httpClientSpy},
         {
-          userId: 1,
-          id: 1,
-          title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-          body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
-        },
-        {
-          userId: 1,
-          id: 2,
-          title: "qui est esse",
-          body: "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla"
+          provide: PostService,
+          useValue: createSpyFromClass(PostService)
         }
       ]
-    };
-
-    httpClientSpy.get.mockResolvedValue(defer(() => Promise.resolve(testHistoryItem)));
-
-    postService.getLatestHistoryItem().subscribe((historyItems) => {
-      expect(historyItems).toEqual(testHistoryItem);
     });
-  }));*/
+    // postService = TestBed.inject(PostService);
+    postServiceSpy = TestBed.inject<any>(PostService);
+
+    const subj = of(dummyPosts);
+    const historyItemSubj = new BehaviorSubject<HistoryItem[]>(new Array<HistoryItem>());
+    postServiceSpy.retrievePosts.mockImplementation(() => subj);
+    postServiceSpy.getLatestHistoryItemList.mockImplementation(() => historyItemSubj);
+  });
+
+  it('should be created a httpClient instance', () => {
+    expect(httpClientSpy).toBeTruthy();
+  });
+
+  it('should be created a postService instance', () => {
+    expect(postServiceSpy).toBeTruthy();
+  });
+
+  describe('METHOD: retrievePosts', () => {
+
+    it('should be able to retrieve posts from the API via GET', () => {
+
+      postServiceSpy.retrievePosts().subscribe(posts => {
+        expect(posts.length).toEqual(5);
+      });
+    });
+
+  });
+
+  describe('METHOD: getLatestHistoryItemList', () => {
+
+    it('should be able to retrieve history items', () => {
+
+      postServiceSpy.getLatestHistoryItemList().subscribe(historyItems => {
+        expect(historyItems.length).toEqual(1);
+      });
+    });
+
+  });
+
 });
