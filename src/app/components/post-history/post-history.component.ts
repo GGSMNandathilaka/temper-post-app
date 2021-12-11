@@ -17,17 +17,11 @@ export class PostHistoryComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // observe the history changes and push to a singleton history array which is resides in the post service.
-    this.historySubscription = this.postService.getLatestHistoryItem().subscribe((historyItem: HistoryItem) => {
-      if (historyItem) {
-        if (this.postService.historyItems) {
-          this.postService.historyItems.push(historyItem);
-        } else {
-          this.postService.historyItems = [];
-        }
-        this.historyItems = this.postService.historyItems;
+    this.historySubscription.add(this.postService.getLatestHistoryItemList().subscribe((historyItemList: HistoryItem[]) => {
+      if (historyItemList) {
+        this.historyItems = historyItemList;
       }
-    });
+    }));
   }
 
   ngOnDestroy() {
@@ -47,18 +41,11 @@ export class PostHistoryComponent implements OnInit, OnDestroy {
   onHistoryRevoke(historyItem: HistoryItem, index: number) {
     if (historyItem) {
 
-      // re-set index; because history items has reversed in the UI
-      const newIndex = this.postService.historyItems.length - 1 - index;
-
       // revoke postList to previous history item's post list
-      if (this.postService.historyItems[newIndex - 1]) {
+      if (this.historyItems[index]) {
 
-        const hItems = [...this.postService.historyItems];
-
-        // remove history items which are latest items upto revoke point
-        this.postService.historyItems.splice(newIndex - 1);
-
-        this.postService.setLatestHistoryItem(hItems[newIndex - 1]);
+        this.historyItems.splice(0, index + 1);
+        this.postService.setLatestHistoryItemList(this.historyItems);
       }
     }
   }

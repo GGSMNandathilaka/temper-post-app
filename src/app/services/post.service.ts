@@ -18,8 +18,7 @@ export class PostService {
 
   public readonly POST_LIMIT = 5;
 
-  private _historyItems: HistoryItem[] = [];
-  private _postHistorySubject: BehaviorSubject<HistoryItem> = new BehaviorSubject(new HistoryItem(-1, -1, -1, []));
+  private _postHistoryListSubject: BehaviorSubject<HistoryItem[]> = new BehaviorSubject(new Array<HistoryItem>());
 
   constructor(private http: HttpClient) {
   }
@@ -32,33 +31,30 @@ export class PostService {
     this.http.get<Post[]>(this.endpointUrl)
       .subscribe(
         (data: Post[]) => {
+
+          const historyItem: HistoryItem = new HistoryItem();
+          historyItem.id = -1;
+          historyItem.current = -1;
+          historyItem.previous = -1;
+          historyItem.postList = [];
+
           if (data && data.length > 0) {
             // initial data loading to history stack
-            const historyItem: HistoryItem = new HistoryItem(-1, -1, -1, data.splice(0, this.POST_LIMIT));
-            this._postHistorySubject.next(historyItem);
-          } else {
-            this._postHistorySubject.next(new HistoryItem(-1, -1, -1, []));
+            historyItem.postList = data.splice(0, this.POST_LIMIT);
           }
+
+          this._postHistoryListSubject.next([historyItem]);
         },
         catchError(this.handleError('retrievePosts', []))
       )
   }
 
-  public getLatestHistoryItem(): Observable<HistoryItem> {
-    return this._postHistorySubject.asObservable();
+  public getLatestHistoryItemList(): Observable<HistoryItem[]> {
+    return this._postHistoryListSubject.asObservable();
   }
 
-  public setLatestHistoryItem(historyItem: HistoryItem) {
-    this._postHistorySubject.next(historyItem);
-  }
-
-
-  get historyItems(): HistoryItem[] {
-    return this._historyItems;
-  }
-
-  set historyItems(value: HistoryItem[]) {
-    this._historyItems = value;
+  public setLatestHistoryItemList(historyItemList: HistoryItem[]) {
+    this._postHistoryListSubject.next(historyItemList);
   }
 
   /**

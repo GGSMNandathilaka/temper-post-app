@@ -2,10 +2,9 @@ import {ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {PostHistoryComponent} from './post-history.component';
 import {PostService} from "../../services/post.service";
-import {HttpClient} from "@angular/common/http";
 import {HistoryItem} from "../../models/history-item";
-import {BehaviorSubject, Observable, of, Subject} from "rxjs";
-import {createSpyFromClass, provideAutoSpy, Spy} from "jest-auto-spies";
+import {BehaviorSubject} from "rxjs";
+import {createSpyFromClass, Spy} from "jest-auto-spies";
 
 describe('PostHistoryComponent', () => {
   let component: PostHistoryComponent;
@@ -83,39 +82,39 @@ describe('PostHistoryComponent', () => {
 
   describe('METHOD: onHistoryRevoke', () => {
 
+    let historyItem: HistoryItem = {
+      id: 3,
+      previous: 2,
+      current: 1,
+      postList: [
+        {
+          userId: 1,
+          id: 3,
+          title: "test3",
+          body: "test3"
+        },
+        {
+          userId: 1,
+          id: 1,
+          title: "test1",
+          body: "test1"
+        }
+      ]
+    };
+
     beforeEach(() => {
       // set 2 post history items to historyItem list
       postServiceSpy.historyItems = testHistoryData;
     });
 
     it('should revoke history', () => {
-      let historyItem: HistoryItem = {
-        id: 3,
-        previous: 2,
-        current: 1,
-        postList: [
-          {
-            userId: 1,
-            id: 3,
-            title: "test3",
-            body: "test3"
-          },
-          {
-            userId: 1,
-            id: 1,
-            title: "test1",
-            body: "test1"
-          }
-        ]
-      };
-
       component.onHistoryRevoke(historyItem, 0);
-      expect(postServiceSpy.historyItems.length).toBe(1);
+      expect(postServiceSpy.historyItems.length).toBe(0);
     });
 
     it('should revoke history', () => {
       component.onHistoryRevoke(historyItem, 1);
-      expect(postServiceSpy.historyItems).toHaveLength(2);
+      expect(postServiceSpy.historyItems).toHaveLength(0);
     });
   });
 });

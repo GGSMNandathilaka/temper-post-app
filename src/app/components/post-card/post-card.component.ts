@@ -9,7 +9,7 @@ import {HistoryItem} from "../../models/history-item";
 })
 export class PostCardComponent implements OnInit {
 
-  @Input() postItem: Post = new Post(0, 0, '', '');
+  @Input() postItem: Post = new Post();
   @Input() itemOrder = 0;
   @Input() postLimit = 0;
   @Output() cardOrderChangeEmitter: EventEmitter<HistoryItem> = new EventEmitter<HistoryItem>();
@@ -24,7 +24,11 @@ export class PostCardComponent implements OnInit {
    * put post item to the immediate upper state
    */
   onItemUp() {
-    const historyItem: HistoryItem = new HistoryItem(this.postItem.id, this.itemOrder, this.itemOrder - 1, []);
+    const historyItem: HistoryItem = new HistoryItem();
+    historyItem.id = this.postItem.id;
+    historyItem.previous = this.itemOrder;
+    historyItem.current = this.itemOrder - 1;
+    historyItem.postList = [];
     this.cardOrderChangeEmitter.emit(historyItem);
   }
 
@@ -32,7 +36,11 @@ export class PostCardComponent implements OnInit {
    * put post item to the immediate down state
    */
   onItemDown() {
-    const historyItem: HistoryItem = new HistoryItem(this.postItem.id, this.itemOrder, this.itemOrder + 1, []);
+    const historyItem: HistoryItem = new HistoryItem();
+    historyItem.id = this.postItem.id;
+    historyItem.previous = this.itemOrder;
+    historyItem.current = this.itemOrder + 1;
+    historyItem.postList = [];
     this.cardOrderChangeEmitter.emit(historyItem);
   }
 
